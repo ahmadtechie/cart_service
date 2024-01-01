@@ -1,0 +1,7 @@
+.vscode
+.idea
+.git
+.gitignore
+db.sqlite*
+logs
+venv
