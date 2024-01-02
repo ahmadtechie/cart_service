@@ -267,7 +267,7 @@ class RetrieveUpdateDestroyCartItemView(generics.RetrieveUpdateDestroyAPIView):
         cart_item_data = self.get_cart_item_from_redis(self.kwargs['cart_id'], self.kwargs['pk'])
 
         if not cart_item_data:
-            logger.warning(f'Cart with ID {self.kwargs['pk']} not found in Redis, checking DB')
+            logger.warning(f"Cart with ID {self.kwargs['pk']} not found in Redis, checking DB")
             print(f"Cart with ID {self.kwargs['pk']} not found in Redis, checking DB")
             cart_item_data = self.get_object()  # If not found in Redis, fetch from the database
 
