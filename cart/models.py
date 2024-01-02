@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 redis_client = redis.StrictRedis(
     host=os.getenv('REDIS_HOST', 'localhost'),
     port=os.getenv('REDIS_PORT', 6379),
-    db=0)
+    db=0, password=os.getenv('REDIS_PASSWORD', ''))
 
 
 class CartItemManager(models.Manager):

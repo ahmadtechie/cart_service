@@ -21,7 +21,7 @@ from .utils import get_or_create_auth_cart, set_guest_cart_id, \
 redis_client = redis.StrictRedis(
     host=os.getenv('REDIS_HOST', 'localhost'),
     port=os.getenv('REDIS_PORT', 6379),
-    db=0)
+    db=0, password=os.getenv('REDIS_PASSWORD', ''))
 
 logger = logging.getLogger(__name__)
 
