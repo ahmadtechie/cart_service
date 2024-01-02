@@ -224,7 +224,7 @@ class RetrieveUserCartView(generics.RetrieveAPIView):
     lookup_field = 'user_id'
 
     def retrieve(self, request, *args, **kwargs):
-        cart_data_json = redis_client.get(f'cart:user:{self.kwargs['user_id']}')
+        cart_data_json = redis_client.get(f"cart:user:{self.kwargs['user_id']}")
 
         if cart_data_json:
             cart = json.loads(cart_data_json.decode('utf-8'))
@@ -323,7 +323,7 @@ class RetrieveUpdateDestroyCartItemView(generics.RetrieveUpdateDestroyAPIView):
             redis_client.set(redis_cart_other_key, json.dumps(cart_item_data))
             redis_client.set(redis_cart_item_key, json.dumps(cart_item_data))
 
-            logger.info(f"Cart with ID {kwargs["pk"]} saved to Redis successfully")
+            logger.info(f"Cart with ID {kwargs['pk']} saved to Redis successfully")
 
             return Response(cart_item_data, status=status.HTTP_200_OK)
         else:
