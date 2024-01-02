@@ -179,6 +179,7 @@ CACHES = {
         "BACKEND": "django_redis.cache.RedisCache",
         "LOCATION": f"redis://{os.getenv('REDIS_HOST', 'localhost')}:{os.getenv('REDIS_PORT', 6379)}",
         "OPTIONS": {
+            "PASSWORD": os.getenv('REDIS_PASSWORD', ''),
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
         }
     }
