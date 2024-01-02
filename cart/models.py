@@ -6,6 +6,7 @@ import logging
 import redis
 from django.db import models
 from django.core.serializers.json import DjangoJSONEncoder
+from django.db.models import Sum
 
 logger = logging.getLogger(__name__)
 
@@ -42,6 +43,10 @@ class Cart(TimeStampedModel):
     created_at = models.DateTimeField(auto_now_add=True)
     modified_at = models.DateTimeField(auto_now=True)
 
+    @property
+    def total_quantity(self):
+        return self.cart_items.aggregate(total_quantity=Sum('quantity'))['total_quantity'] or 0
+
     @classmethod
     def get_cart_from_redis(cls, cart_id):
         cart_data = redis_client.get(cart_id)
@@ -59,6 +64,7 @@ class Cart(TimeStampedModel):
             "id": str(self.id),
             "user_id": self.user_id,
             "cart_items": [],
+            "total_quantity": self.total_quantity,
             "created_at": self.created_at,
             "modified_at": self.modified_at,
         }

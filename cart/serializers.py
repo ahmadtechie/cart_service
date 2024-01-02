@@ -29,8 +29,15 @@ class ItemOptionsSerializer(serializers.ModelSerializer):
 class CartSerializer(serializers.ModelSerializer):
     class Meta:
         model = Cart
-        fields = ['id', 'user_id', 'created_at', 'modified_at']
+        fields = ['id', 'user_id', 'total_quantity', 'created_at', 'modified_at']
         extra_kwargs = {'user_id': {'required': False}}
+
+    def validate_user_id(self, value):
+        if value:
+            cart = Cart.objects.filter(user_id=value)
+            if cart.exists():
+                raise serializers.ValidationError("Cart has already been created for this user.")
+            return value
 
     def create(self, validated_data):
         cart = Cart.objects.create(**validated_data)
@@ -124,7 +131,7 @@ class RetrieveCartSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Cart
-        fields = ['id', 'user_id', 'cart_items', 'created_at', 'modified_at']
+        fields = ['id', 'user_id', 'cart_items', 'total_quantity', 'created_at', 'modified_at']
 
 
 class CustomCartItemSerializer(serializers.ModelSerializer):

@@ -3,6 +3,7 @@ import json
 import logging
 import redis
 import requests
+from django.core.serializers.json import DjangoJSONEncoder
 
 from rest_framework import generics
 from rest_framework import status
@@ -15,7 +16,7 @@ from .serializers import CartSerializer, RetrieveCartSerializer, CartItemSeriali
     CartItemQuantityUpdateSerializer, CustomItemOptionsSerializer, WishlistSerializer
 from .models import Cart, CartItem, ItemOption, Wishlist
 from .utils import get_or_create_auth_cart, set_guest_cart_id, \
-    delete_cart_from_redis, delete_cart_item_from_redis
+    delete_cart_from_redis, delete_cart_item_from_redis, get_cart_from_redis
 
 redis_client = redis.StrictRedis(
     host=os.getenv('REDIS_HOST', 'localhost'),
@@ -180,7 +181,7 @@ class RetrieveDeleteCartView(generics.RetrieveDestroyAPIView):
 
         if cart_data:
             cart = self.get_user_id_from_redis(cart_id)['cart']  # Fetch cart data from Redis
-            print('Cart Retrieval ', cart)
+            print('Redis Cart Retrieval ', cart)
         else:
             logger.warning(f'Cart with ID {self.kwargs['pk']} not found in Redis, checking DB')
             cart = self.get_object()  # If not found in Redis, fetch from the database
@@ -276,6 +277,7 @@ class RetrieveUpdateDestroyCartItemView(generics.RetrieveUpdateDestroyAPIView):
     def update(self, request, *args, **kwargs):
         # Get the cart item to update
         cart_item_data = self.get_cart_item_from_redis(kwargs['cart_id'], kwargs['pk'])
+        cart_data = get_cart_from_redis(kwargs['cart_id'])
 
         if not cart_item_data:
             logger.warning(f'Cart Item with ID {kwargs["pk"]} not found in Redis, checking DB')
@@ -288,13 +290,36 @@ class RetrieveUpdateDestroyCartItemView(generics.RetrieveUpdateDestroyAPIView):
             # Serialize the data to JSON before saving to Redis
             serialized_data = serializer.data
 
+            # Redis keys
             redis_cart_item_key = f'cart_item:main:{kwargs["pk"]}'
             redis_cart_other_key = f'cart_item:cart:{kwargs["cart_id"]}:{kwargs["pk"]}'
+            redis_user_key = f'cart:user:{cart_data["user_id"]}' if cart_data["user_id"] else None
+            redis_cart_key = f'cart:main:{cart_data["id"]}'
+
             cart_item_data['quantity'] = serialized_data['quantity']
+            # effect the change in the db
+            try:
+                db_item = CartItem.objects.get(id=cart_item_data['id'])
+                db_item.quantity = serialized_data['quantity']
+                db_item.save()
+            except CartItem.DoesNotExist:
+                pass
+
+            # update the cart itself in Redis
+            if cart_data:
+                for index, item in enumerate(cart_data['cart_items']):
+                    if item['id'] == cart_item_data['id']:
+                        # Replace the existing item with the updated item
+                        cart_data['cart_items'][index] = cart_item_data
+                        break
+                cart_data["total_quantity"] = Cart.objects.get(id=cart_data['id']).total_quantity
 
             print("serialized_data['quantity']: ", serialized_data['quantity'])
 
             # Save the serialized data to Redis
+            if redis_user_key:
+                redis_client.set(redis_user_key, json.dumps(cart_data, cls=DjangoJSONEncoder))
+            redis_client.set(redis_cart_key, json.dumps(cart_data, cls=DjangoJSONEncoder))
             redis_client.set(redis_cart_other_key, json.dumps(cart_item_data))
             redis_client.set(redis_cart_item_key, json.dumps(cart_item_data))
 

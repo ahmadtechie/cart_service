@@ -9,6 +9,8 @@ from django.conf import settings
 from django.core.serializers.json import DjangoJSONEncoder
 from django.http import HttpResponse
 
+from cart.models import CartItem, Cart
+
 redis_client = redis.StrictRedis(
     host=os.getenv('REDIS_HOST', 'localhost'),
     port=os.getenv('REDIS_PORT', 6379),
@@ -94,6 +96,16 @@ def get_existing_cart_item_redis(cart, prod_id, options_data, user_id=None):
 def merge_cart_items(cart, cart_item, quantity_to_add):
     # Update the quantity of the existing cart item
     cart_item['quantity'] += quantity_to_add
+
+    # update the cart item count in the db too
+    try:
+        db_item = CartItem.objects.get(id=cart_item['id'])
+        db_item.quantity += quantity_to_add
+        db_item.save()
+        # print('total_quantity', Cart.objects.get(id=cart['id']).total_quantity)
+    except CartItem.DoesNotExist:
+        pass
+
     logger.info(f'New CartItem quantity = {cart_item["quantity"]} + {quantity_to_add}')
 
     # Find the index of the cart_item in the cart_items list
@@ -102,7 +114,9 @@ def merge_cart_items(cart, cart_item, quantity_to_add):
             # Replace the existing item with the updated item
             cart['cart_items'][index] = cart_item
             break
+    cart["total_quantity"] = Cart.objects.get(id=cart['id']).total_quantity
 
+    # print("cart ", cart)
     # Save the updated cart data back to Redis
     redis_user_key = f'cart:user:{cart["user_id"]}' if cart["user_id"] else None
     redis_cart_key = f'cart:main:{cart["id"]}'
@@ -120,7 +134,7 @@ def merge_cart_items(cart, cart_item, quantity_to_add):
 def get_cart_from_redis(cart_id=None, user_id=None):
     cart_data_json = redis_client.get(f'cart:main:{cart_id}')
     user_cart_data_json = redis_client.get(f'cart:user:{user_id}')
-    print(cart_data_json, user_cart_data_json)
+    # print(cart_data_json, user_cart_data_json)
 
     if cart_data_json:
         logger.info(f"Cart with ID {cart_id} retrieved from Redis successfully")
