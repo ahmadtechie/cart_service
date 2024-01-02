@@ -1,5 +1,6 @@
 import os
 
+import dj_database_url
 import dotenv
 
 from pathlib import Path
@@ -82,11 +83,18 @@ WSGI_APPLICATION = 'cart_service.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
+
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    'default': dj_database_url.config(
+        default=os.getenv('DATABASE_URL', 'postgresql://postgres:6Cf3C*bAEDEgc6*26-b6EbFBecA1EabA@roundhouse.proxy.rlwy.net:29519/railway'),
+        conn_max_age=1800
+    )
 }
 
 # Password validation
