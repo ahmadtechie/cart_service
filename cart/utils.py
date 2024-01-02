@@ -86,7 +86,7 @@ def get_existing_cart_item_redis(cart, prod_id, options_data, user_id=None):
                 is_cart_item_exist = compare_dicts(options_data, options)
 
                 if is_cart_item_exist:
-                    logger.info(f'Cart with ID {cart_item_data["id"]} matches the current cart item')
+                    logger.info(f"Cart with ID {cart_item_data['id']} matches the current cart item")
                     return cart_item_data
             else:
                 continue
@@ -106,7 +106,7 @@ def merge_cart_items(cart, cart_item, quantity_to_add):
     except CartItem.DoesNotExist:
         pass
 
-    logger.info(f'New CartItem quantity = {cart_item["quantity"]} + {quantity_to_add}')
+    logger.info(f"New CartItem quantity = {cart_item['quantity']} + {quantity_to_add}")
 
     # Find the index of the cart_item in the cart_items list
     for index, item in enumerate(cart['cart_items']):
@@ -128,7 +128,7 @@ def merge_cart_items(cart, cart_item, quantity_to_add):
     redis_client.set(redis_cart_key, json.dumps(cart, cls=DjangoJSONEncoder))
     redis_client.set(redis_cart_other_key, json.dumps(cart_item, cls=DjangoJSONEncoder))
     redis_client.set(redis_cart_item_key, json.dumps(cart_item, cls=DjangoJSONEncoder))
-    logger.info(f'Cart with ID {cart["id"]} saved to Redis successfully')
+    logger.info(f"Cart with ID {cart['id']} saved to Redis successfully")
 
 
 def get_cart_from_redis(cart_id=None, user_id=None):

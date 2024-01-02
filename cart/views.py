@@ -183,7 +183,7 @@ class RetrieveDeleteCartView(generics.RetrieveDestroyAPIView):
             cart = self.get_user_id_from_redis(cart_id)['cart']  # Fetch cart data from Redis
             print('Redis Cart Retrieval ', cart)
         else:
-            logger.warning(f'Cart with ID {self.kwargs['pk']} not found in Redis, checking DB')
+            logger.warning(f"Cart with ID {self.kwargs['pk']} not found in Redis, checking DB")
             cart = self.get_object()  # If not found in Redis, fetch from the database
 
         serializer = self.get_serializer(cart)
@@ -196,7 +196,7 @@ class RetrieveDeleteCartView(generics.RetrieveDestroyAPIView):
         if cart_data:
             delete_cart_from_redis(cart_data['cart']['id'], cart_data['cart']['user_id'])
         else:
-            logger.warning(f'Cart with ID {self.kwargs['pk']} not found in Redis, checking DB')
+            logger.warning(f"Cart with ID {self.kwargs['pk']} not found in Redis, checking DB")
             cart = self.get_object()  # If not found in Redis, fetch from the database
             self.perform_destroy(cart)  # Perform delete operation
 
@@ -229,7 +229,7 @@ class RetrieveUserCartView(generics.RetrieveAPIView):
         if cart_data_json:
             cart = json.loads(cart_data_json.decode('utf-8'))
         else:
-            logger.warning(f'Cart with ID {self.kwargs['user_id']} not found in Redis, checking DB')
+            logger.warning(f"Cart with ID {self.kwargs['user_id']} not found in Redis, checking DB")
             cart = self.get_object()  # If not found in Redis, fetch from the database
 
         serializer = self.get_serializer(cart)
@@ -268,7 +268,7 @@ class RetrieveUpdateDestroyCartItemView(generics.RetrieveUpdateDestroyAPIView):
 
         if not cart_item_data:
             logger.warning(f'Cart with ID {self.kwargs['pk']} not found in Redis, checking DB')
-            print(f'Cart with ID {self.kwargs['pk']} not found in Redis, checking DB')
+            print(f"Cart with ID {self.kwargs['pk']} not found in Redis, checking DB")
             cart_item_data = self.get_object()  # If not found in Redis, fetch from the database
 
         serializer = self.get_serializer(cart_item_data)
@@ -280,7 +280,7 @@ class RetrieveUpdateDestroyCartItemView(generics.RetrieveUpdateDestroyAPIView):
         cart_data = get_cart_from_redis(kwargs['cart_id'])
 
         if not cart_item_data:
-            logger.warning(f'Cart Item with ID {kwargs["pk"]} not found in Redis, checking DB')
+            logger.warning(f"Cart Item with ID {kwargs["pk"]} not found in Redis, checking DB")
             cart_item_data = self.get_object()  # If not found in Redis, fetch from the database
 
         # Update the cart item with the new data
@@ -323,7 +323,7 @@ class RetrieveUpdateDestroyCartItemView(generics.RetrieveUpdateDestroyAPIView):
             redis_client.set(redis_cart_other_key, json.dumps(cart_item_data))
             redis_client.set(redis_cart_item_key, json.dumps(cart_item_data))
 
-            logger.info(f'Cart with ID {kwargs["pk"]} saved to Redis successfully')
+            logger.info(f"Cart with ID {kwargs["pk"]} saved to Redis successfully")
 
             return Response(cart_item_data, status=status.HTTP_200_OK)
         else:
@@ -338,7 +338,7 @@ class RetrieveUpdateDestroyCartItemView(generics.RetrieveUpdateDestroyAPIView):
         if cart_item_data:
             delete_cart_item_from_redis(cart_item_id, cart_id)
         else:
-            logger.warning(f'Cart Item with ID {self.kwargs['pk']} not found in Redis, checking DB')
+            logger.warning(f"Cart Item with ID {self.kwargs['pk']} not found in Redis, checking DB")
             cart = self.get_object()  # If not found in Redis, fetch from the database
             self.perform_destroy(cart)  # Perform delete operation
 
