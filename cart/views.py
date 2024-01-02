@@ -291,10 +291,10 @@ class RetrieveUpdateDestroyCartItemView(generics.RetrieveUpdateDestroyAPIView):
             serialized_data = serializer.data
 
             # Redis keys
-            redis_cart_item_key = f'cart_item:main:{kwargs["pk"]}'
-            redis_cart_other_key = f'cart_item:cart:{kwargs["cart_id"]}:{kwargs["pk"]}'
-            redis_user_key = f'cart:user:{cart_data["user_id"]}' if cart_data["user_id"] else None
-            redis_cart_key = f'cart:main:{cart_data["id"]}'
+            redis_cart_item_key = f"cart_item:main:{kwargs['pk']}"
+            redis_cart_other_key = f"cart_item:cart:{kwargs['cart_id']}:{kwargs['pk']}"
+            redis_user_key = f"cart:user:{cart_data['user_id']}" if cart_data["user_id"] else None
+            redis_cart_key = f"cart:main:{cart_data['id']}"
 
             cart_item_data['quantity'] = serialized_data['quantity']
             # effect the change in the db

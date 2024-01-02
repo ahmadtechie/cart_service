@@ -118,10 +118,10 @@ def merge_cart_items(cart, cart_item, quantity_to_add):
 
     # print("cart ", cart)
     # Save the updated cart data back to Redis
-    redis_user_key = f'cart:user:{cart["user_id"]}' if cart["user_id"] else None
-    redis_cart_key = f'cart:main:{cart["id"]}'
-    redis_cart_item_key = f'cart_item:main:{cart_item['id']}'
-    redis_cart_other_key = f'cart_item:cart:{cart["id"]}:{cart_item['id']}'
+    redis_user_key = f"cart:user:{cart['user_id']}" if cart["user_id"] else None
+    redis_cart_key = f"cart:main:{cart['id']}"
+    redis_cart_item_key = f"cart_item:main:{cart_item['id']}"
+    redis_cart_other_key = f"cart_item:cart:{cart['id']}:{cart_item['id']}"
 
     if redis_user_key:
         redis_client.set(redis_user_key, json.dumps(cart, cls=DjangoJSONEncoder))
