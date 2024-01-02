@@ -16,6 +16,7 @@ inflection==0.5.1
 jsonschema==4.19.1
 jsonschema-specifications==2023.7.1
 packaging==23.2
+psycopg2==2.9.9
 python-dotenv==1.0.0
 pytz==2023.3.post1
 PyYAML==6.0.1
